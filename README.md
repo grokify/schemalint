@@ -153,4 +153,4 @@ MIT License - see [LICENSE](LICENSE) for details.
  [loc-svg]: https://tokei.rs/b1/github/grokify/schemago
  [repo-url]: https://github.com/grokify/schemago
  [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
- [license-url]: https://github.com/grokify/schemago/blob/master/LICENSE
+ [license-url]: https://github.com/grokify/schemago/blob/main/LICENSE

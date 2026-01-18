@@ -1,6 +1,6 @@
 # Release Notes: schemago v0.1.0
 
-**Release Date:** 2025-01-17
+**Release Date:** 2026-01-17
 
 ## Overview
 
