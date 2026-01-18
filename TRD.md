@@ -56,28 +56,28 @@ This document covers:
 ```
 schemago/
 ├── cmd/
-│   └── schemago/           # CLI entry point           ✅ Implemented
+│   └── schemago/           # CLI entry point            ✅ Implemented
 │       └── main.go
-├── linter/                  # Schema linting           ✅ Implemented
+├── linter/                 # Schema linting             ✅ Implemented
 │   ├── linter.go           # Core linting logic
 │   ├── linter_test.go      # Unit tests
 │   ├── schema.go           # JSON Schema types
 │   └── issue.go            # Issue/Result types
-├── parser/                  # JSON Schema parsing      🔲 Planned
+├── parser/                 # JSON Schema parsing        🔲 Planned
 │   ├── parser.go           # Schema loader
 │   └── resolver.go         # $ref resolution
-├── ir/                      # Intermediate Rep.        🔲 Planned
+├── ir/                     # Intermediate Rep.          🔲 Planned
 │   ├── types.go            # IR type definitions
 │   ├── builder.go          # Schema → IR conversion
 │   └── analyzer.go         # Union/pattern detection
-├── generator/               # Go code generation       🔲 Planned
+├── generator/              # Go code generation         🔲 Planned
 │   ├── generator.go        # Main generator
 │   ├── struct.go           # Struct generation
 │   ├── union.go            # Union generation
 │   ├── marshal.go          # Marshal/Unmarshal methods
 │   └── templates/          # Go templates
-├── testdata/                # Test schemas             ✅ Implemented
-└── examples/                # Example schemas          🔲 Planned
+├── testdata/               # Test schemas               ✅ Implemented
+└── examples/               # Example schemas            🔲 Planned
 ```
 
 ## 2.3 Linter Package (Implemented)
