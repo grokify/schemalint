@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/good-schema",
+  "$defs": {
+    "Animal": {
+      "anyOf": [
+        {"$ref": "#/$defs/Dog"},
+        {"$ref": "#/$defs/Cat"}
+      ]
+    },
+    "Dog": {
+      "type": "object",
+      "properties": {
+        "type": {"const": "dog"},
+        "name": {"type": "string"},
+        "breed": {"type": "string"}
+      },
+      "required": ["type", "name"],
+      "additionalProperties": false
+    },
+    "Cat": {
+      "type": "object",
+      "properties": {
+        "type": {"const": "cat"},
+        "name": {"type": "string"},
+        "indoor": {"type": "boolean"}
+      },
+      "required": ["type", "name"],
+      "additionalProperties": false
+    },
+    "NullableString": {
+      "anyOf": [
+        {"type": "string"},
+        {"type": "null"}
+      ]
+    }
+  },
+  "type": "object",
+  "properties": {
+    "pet": {"$ref": "#/$defs/Animal"},
+    "nickname": {"$ref": "#/$defs/NullableString"}
+  }
+}

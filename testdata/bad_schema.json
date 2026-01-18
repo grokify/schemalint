@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/bad-schema",
+  "$defs": {
+    "BadUnion": {
+      "description": "Union without discriminator - should trigger error",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "name": {"type": "string"},
+            "age": {"type": "integer"}
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "title": {"type": "string"},
+            "pages": {"type": "integer"}
+          }
+        }
+      ]
+    },
+    "InconsistentDiscriminator": {
+      "description": "Union with missing const - should trigger error",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {"const": "alpha"},
+            "value": {"type": "string"}
+          }
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {"type": "string"},
+            "data": {"type": "number"}
+          }
+        }
+      ]
+    },
+    "LargeUnion": {
+      "description": "Union with too many variants - should trigger warning",
+      "oneOf": [
+        {"type": "object", "properties": {"type": {"const": "v1"}}},
+        {"type": "object", "properties": {"type": {"const": "v2"}}},
+        {"type": "object", "properties": {"type": {"const": "v3"}}},
+        {"type": "object", "properties": {"type": {"const": "v4"}}},
+        {"type": "object", "properties": {"type": {"const": "v5"}}},
+        {"type": "object", "properties": {"type": {"const": "v6"}}},
+        {"type": "object", "properties": {"type": {"const": "v7"}}},
+        {"type": "object", "properties": {"type": {"const": "v8"}}},
+        {"type": "object", "properties": {"type": {"const": "v9"}}},
+        {"type": "object", "properties": {"type": {"const": "v10"}}},
+        {"type": "object", "properties": {"type": {"const": "v11"}}},
+        {"type": "object", "properties": {"type": {"const": "v12"}}}
+      ]
+    },
+    "AdditionalPropsUnion": {
+      "description": "Union variant with additionalProperties - should trigger warning",
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {"const": "open"},
+            "name": {"type": "string"}
+          },
+          "additionalProperties": true
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {"const": "closed"},
+            "id": {"type": "integer"}
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}
