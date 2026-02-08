@@ -1,44 +1,61 @@
-# SchemaGo
+# SchemaLint
 
 [![Build Status][build-status-svg]][build-status-url]
 [![Lint Status][lint-status-svg]][lint-status-url]
 [![Go Report Card][goreport-svg]][goreport-url]
 [![Docs][docs-godoc-svg]][docs-godoc-url]
-[![Visualization][viz-svg]][viz-url]
 [![License][license-svg]][license-url]
 
-JSON Schema to Go code generator with first-class union type support.
+JSON Schema linter for static type compatibility.
 
 ## Overview
 
-**schemago** is a JSON Schema to Go code generator that correctly handles union types (`anyOf`/`oneOf`). Unlike existing generators that degrade unions to `interface{}`, schemago produces idiomatic Go code with:
-
-- Proper tagged union structs
-- Discriminator-based `UnmarshalJSON`/`MarshalJSON`
-- Nullable pointer types for `anyOf [T, null]`
+**schemalint** validates JSON Schema files for compatibility with statically-typed languages like Go, Rust, TypeScript, and others. It catches patterns that cause problems in code generation before they become runtime issues.
 
 ## Installation
 
+### Homebrew
+
 ```bash
-go install github.com/grokify/schemago/cmd/schemago@latest
+brew install grokify/tap/schemalint
+```
+
+### Go Install
+
+```bash
+go install github.com/grokify/schemalint/cmd/schemalint@latest
 ```
 
 ## Usage
 
-### Lint Schema for Go Compatibility
+### Lint Schema
 
-Check a JSON Schema for patterns that cause problems in Go code generation:
+Check a JSON Schema for patterns that cause problems in code generation:
 
 ```bash
-schemago lint schema.json
+schemalint lint schema.json
 ```
 
-Output formats:
+### Profiles
+
+Use `--profile` to select a linting profile:
 
 ```bash
-schemago lint --output text schema.json   # Human-readable (default)
-schemago lint --output json schema.json   # Machine-readable JSON
-schemago lint --output github schema.json # GitHub Actions annotations
+schemalint lint schema.json                  # default profile
+schemalint lint schema.json --profile scale  # strict scale profile
+```
+
+| Profile | Description |
+|---------|-------------|
+| `default` | Standard checks for discriminators, union size, nesting |
+| `scale` | Strict mode that disallows composition keywords for clean static types |
+
+### Output Formats
+
+```bash
+schemalint lint --output text schema.json   # Human-readable (default)
+schemalint lint --output json schema.json   # Machine-readable JSON
+schemalint lint --output github schema.json # GitHub Actions annotations
 ```
 
 ### Exit Codes
@@ -51,7 +68,9 @@ schemago lint --output github schema.json # GitHub Actions annotations
 
 ## Lint Checks
 
-### Errors
+### Default Profile
+
+#### Errors
 
 | Code | Description |
 |------|-------------|
@@ -60,13 +79,24 @@ schemago lint --output github schema.json # GitHub Actions annotations
 | `missing-const` | Union variant lacks `const` value for discriminator |
 | `duplicate-const-value` | Multiple variants have the same discriminator value |
 
-### Warnings
+#### Warnings
 
 | Code | Description |
 |------|-------------|
 | `large-union` | Union has more than 10 variants |
 | `nested-union` | Union nested more than 2 levels deep |
 | `additional-properties` | Union variant has `additionalProperties: true` |
+
+### Scale Profile
+
+The scale profile includes all default checks plus these additional errors:
+
+| Code | Description |
+|------|-------------|
+| `composition-disallowed` | Disallow `anyOf`, `oneOf`, `allOf` |
+| `additional-properties-disallowed` | Disallow `additionalProperties: true` |
+| `missing-type` | Require explicit `type` field |
+| `mixed-type-disallowed` | Disallow type arrays like `["string", "number"]` |
 
 ## Example
 
@@ -85,7 +115,7 @@ Given this schema with a union that lacks a discriminator:
 }
 ```
 
-Running `schemago lint` will report:
+Running `schemalint lint` will report:
 
 ```
 [error] $/$defs/Response/anyOf: anyOf union has no discriminator field
@@ -125,8 +155,8 @@ Fix by adding a discriminator:
 
 See [ROADMAP.md](ROADMAP.md) for planned features including:
 
-- `schemago generate` - Generate Go code from schemas
-- Full Oracle Agent Spec compatibility
+- Code generation for Go, Rust, TypeScript
+- Full `$ref` resolution
 - OpenAPI 3.1 support
 
 ## References
@@ -134,23 +164,18 @@ See [ROADMAP.md](ROADMAP.md) for planned features including:
 - [PRD.md](PRD.md) - Product requirements
 - [TRD.md](TRD.md) - Technical requirements
 - [JSON Schema Draft 2020-12](https://json-schema.org/draft/2020-12/json-schema-core)
-- [Oracle Agent Spec](https://oracle.github.io/agent-spec/)
 
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
 
- [build-status-svg]: https://github.com/grokify/schemago/actions/workflows/ci.yaml/badge.svg?branch=main
- [build-status-url]: https://github.com/grokify/schemago/actions/workflows/ci.yaml
- [lint-status-svg]: https://github.com/grokify/schemago/actions/workflows/lint.yaml/badge.svg?branch=main
- [lint-status-url]: https://github.com/grokify/schemago/actions/workflows/lint.yaml
- [goreport-svg]: https://goreportcard.com/badge/github.com/grokify/schemago
- [goreport-url]: https://goreportcard.com/report/github.com/grokify/schemago
- [docs-godoc-svg]: https://pkg.go.dev/badge/github.com/grokify/schemago
- [docs-godoc-url]: https://pkg.go.dev/github.com/grokify/schemago
- [viz-svg]: https://img.shields.io/badge/visualizaton-Go-blue.svg
- [viz-url]: https://mango-dune-07a8b7110.1.azurestaticapps.net/?repo=grokify%2Fschemago
- [loc-svg]: https://tokei.rs/b1/github/grokify/schemago
- [repo-url]: https://github.com/grokify/schemago
+ [build-status-svg]: https://github.com/grokify/schemalint/actions/workflows/ci.yaml/badge.svg?branch=main
+ [build-status-url]: https://github.com/grokify/schemalint/actions/workflows/ci.yaml
+ [lint-status-svg]: https://github.com/grokify/schemalint/actions/workflows/lint.yaml/badge.svg?branch=main
+ [lint-status-url]: https://github.com/grokify/schemalint/actions/workflows/lint.yaml
+ [goreport-svg]: https://goreportcard.com/badge/github.com/grokify/schemalint
+ [goreport-url]: https://goreportcard.com/report/github.com/grokify/schemalint
+ [docs-godoc-svg]: https://pkg.go.dev/badge/github.com/grokify/schemalint
+ [docs-godoc-url]: https://pkg.go.dev/github.com/grokify/schemalint
  [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
- [license-url]: https://github.com/grokify/schemago/blob/main/LICENSE
+ [license-url]: https://github.com/grokify/schemalint/blob/main/LICENSE
