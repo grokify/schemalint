@@ -306,6 +306,16 @@
       "area": "linter",
       "type": "Added",
       "priority": "medium"
+    },
+    {
+      "id": "github-action",
+      "title": "GitHub Action (separate repo)",
+      "description": "Reusable GitHub Action in grokify/schemalint-action for CI/CD integration. Uses floating major version tags (v1, v2) per GitHub Action conventions.",
+      "status": "future",
+      "phase": "future",
+      "area": "distribution",
+      "type": "Added",
+      "priority": "high"
     }
   ],
 

@@ -136,6 +136,10 @@ README, examples, API documentation
 
 **Target:** 1.0.0
 
+### [ ] GitHub Action (separate repo)
+
+Reusable GitHub Action in grokify/schemalint-action for CI/CD integration. Uses floating major version tags (v1, v2) per GitHub Action conventions.
+
 ### [x] GoReleaser configuration
 
 Multi-platform binary releases
