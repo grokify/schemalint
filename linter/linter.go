@@ -16,10 +16,28 @@ const (
 	ProfileScale Profile = "scale"
 )
 
+// PropertyCase defines the casing convention for object properties.
+type PropertyCase string
+
+const (
+	// CaseNone disables property case validation.
+	CaseNone PropertyCase = "none"
+	// CaseCamel is for camelCase.
+	CaseCamel PropertyCase = "camelCase"
+	// CaseSnake is for snake_case.
+	CaseSnake PropertyCase = "snake_case"
+	// CaseKebab is for kebab-case.
+	CaseKebab PropertyCase = "kebab-case"
+	// CasePascal is for PascalCase.
+	CasePascal PropertyCase = "PascalCase"
+)
+
 // Config holds linter configuration options.
 type Config struct {
 	// Profile is the linting profile to use.
 	Profile Profile
+	// PropertyCase is the casing convention to enforce for property names.
+	PropertyCase PropertyCase
 	// MaxUnionVariants is the threshold for large union warnings (default: 10)
 	MaxUnionVariants int
 	// MaxUnionNestingDepth is the threshold for nested union warnings (default: 2)
@@ -32,6 +50,7 @@ type Config struct {
 func DefaultConfig() Config {
 	return Config{
 		Profile:              ProfileDefault,
+		PropertyCase:         CaseCamel,
 		MaxUnionVariants:     10,
 		MaxUnionNestingDepth: 2,
 		DiscriminatorFields:  []string{"component_type", "type", "kind"},
@@ -135,6 +154,90 @@ func (l *Linter) lintSchema(schema *Schema, path string, result *Result, unionDe
 	if schema.AdditionalPropertiesSchema != nil {
 		l.lintSchema(schema.AdditionalPropertiesSchema, path+"/additionalProperties", result, unionDepth)
 	}
+
+	// Check property naming convention
+	if l.config.PropertyCase != CaseNone {
+		l.lintProperties(schema, path, result)
+	}
+}
+
+// lintProperties checks the casing of property names.
+func (l *Linter) lintProperties(schema *Schema, path string, result *Result) {
+	for propName := range schema.Properties {
+		isValid := false
+		switch l.config.PropertyCase {
+		case CaseCamel:
+			isValid = isCamelCase(propName)
+		case CaseSnake:
+			isValid = isSnakeCase(propName)
+		case CaseKebab:
+			isValid = isKebabCase(propName)
+		case CasePascal:
+			isValid = isPascalCase(propName)
+		}
+
+		if !isValid {
+			result.Issues = append(result.Issues, Issue{
+				Code:       CodeInvalidPropertyCase,
+				Severity:   SeverityError,
+				Path:       fmt.Sprintf("%s/properties/%s", path, propName),
+				Message:    fmt.Sprintf("Property '%s' is not in %s", propName, l.config.PropertyCase),
+				Suggestion: fmt.Sprintf("Rename property to follow the %s convention", l.config.PropertyCase),
+			})
+		}
+	}
+}
+
+// isCamelCase checks if a string is in camelCase.
+func isCamelCase(s string) bool {
+	if s == "" {
+		return true
+	}
+	if s[0] < 'a' || s[0] > 'z' {
+		return false
+	}
+	for _, r := range s {
+		if (r < 'a' || r > 'z') && (r < 'A' || r > 'Z') && (r < '0' || r > '9') {
+			return false
+		}
+	}
+	return true
+}
+
+// isSnakeCase checks if a string is in snake_case.
+func isSnakeCase(s string) bool {
+	for _, r := range s {
+		if (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '_' {
+			return false
+		}
+	}
+	return true
+}
+
+// isKebabCase checks if a string is in kebab-case.
+func isKebabCase(s string) bool {
+	for _, r := range s {
+		if (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '-' {
+			return false
+		}
+	}
+	return true
+}
+
+// isPascalCase checks if a string is in PascalCase.
+func isPascalCase(s string) bool {
+	if s == "" {
+		return true
+	}
+	if s[0] < 'A' || s[0] > 'Z' {
+		return false
+	}
+	for _, r := range s {
+		if (r < 'a' || r > 'z') && (r < 'A' || r > 'Z') && (r < '0' || r > '9') {
+			return false
+		}
+	}
+	return true
 }
 
 // lintScaleProfile applies strict checks for the scale profile.

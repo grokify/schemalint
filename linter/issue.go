@@ -25,6 +25,7 @@ const (
 	CodeInconsistentDiscriminator IssueCode = "inconsistent-discriminator"
 	CodeMissingConst              IssueCode = "missing-const"
 	CodeDuplicateConstValue       IssueCode = "duplicate-const-value"
+	CodeInvalidPropertyCase       IssueCode = "invalid-property-case"
 
 	// Warnings - these may cause issues or indicate suboptimal patterns
 	CodeLargeUnion        IssueCode = "large-union"

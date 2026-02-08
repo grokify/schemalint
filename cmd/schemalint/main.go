@@ -61,8 +61,9 @@ Exit codes:
 }
 
 var (
-	lintOutput  string
-	lintProfile string
+	lintOutput       string
+	lintProfile      string
+	lintPropertyCase string
 )
 
 func init() {
@@ -71,6 +72,7 @@ func init() {
 
 	lintCmd.Flags().StringVarP(&lintOutput, "output", "o", "text", "Output format: text, json, github")
 	lintCmd.Flags().StringVarP(&lintProfile, "profile", "p", "default", "Linting profile: default, scale")
+	lintCmd.Flags().StringVar(&lintPropertyCase, "property-case", "camelCase", "Property case convention: none, camelCase, snake_case, kebab-case, PascalCase")
 }
 
 func runLint(cmd *cobra.Command, args []string) error {
@@ -84,6 +86,21 @@ func runLint(cmd *cobra.Command, args []string) error {
 		config.Profile = linter.ProfileDefault
 	default:
 		return fmt.Errorf("unknown profile: %s (use 'default' or 'scale')", lintProfile)
+	}
+
+	switch lintPropertyCase {
+	case "none":
+		config.PropertyCase = linter.CaseNone
+	case "camelCase":
+		config.PropertyCase = linter.CaseCamel
+	case "snake_case":
+		config.PropertyCase = linter.CaseSnake
+	case "kebab-case":
+		config.PropertyCase = linter.CaseKebab
+	case "PascalCase":
+		config.PropertyCase = linter.CasePascal
+	default:
+		return fmt.Errorf("unknown property case: %s", lintPropertyCase)
 	}
 
 	l := linter.New(config)

@@ -1,0 +1,9 @@
+schemalint
+testdata/property_case_camel_invalid.json
+testdata/property_case_camel_valid.json
+testdata/property_case_kebab_invalid.json
+testdata/property_case_kebab_valid.json
+testdata/property_case_pascal_invalid.json
+testdata/property_case_pascal_valid.json
+testdata/property_case_snake_invalid.json
+testdata/property_case_snake_valid.json

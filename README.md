@@ -78,6 +78,7 @@ schemalint lint --output github schema.json # GitHub Actions annotations
 | `inconsistent-discriminator` | Variants use different discriminator field names |
 | `missing-const` | Union variant lacks `const` value for discriminator |
 | `duplicate-const-value` | Multiple variants have the same discriminator value |
+| `invalid-property-case` | Property name does not follow the configured case convention |
 
 #### Warnings
 
