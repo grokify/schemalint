@@ -1,4 +1,4 @@
-module github.com/grokify/schemago
+module github.com/grokify/schemalint
 
 go 1.25.5
 

@@ -1,4 +1,4 @@
-// Package main provides the schemago CLI.
+// Package main provides the schemalint CLI.
 package main
 
 import (
@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/grokify/schemago/linter"
+	"github.com/grokify/schemalint/linter"
 )
 
 var version = "dev"
@@ -20,29 +20,37 @@ func main() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "schemago",
-	Short: "JSON Schema to Go code generator with union type support",
-	Long: `schemago is a JSON Schema to Go code generator that correctly handles
-union types (anyOf/oneOf) by generating proper tagged unions with
-discriminator-based unmarshalling.
+	Use:   "schemalint",
+	Short: "JSON Schema linter for static type compatibility",
+	Long: `schemalint validates JSON Schema files for compatibility with
+statically-typed languages like Go, Rust, TypeScript, and others.
 
-Use 'schemago lint' to check schemas for Go compatibility issues.
-Use 'schemago generate' to generate Go code from schemas.`,
+Use 'schemalint lint' to check schemas for type compatibility issues.
+
+Profiles:
+  default  - Check for common issues (discriminators, large unions)
+  scale    - Strict mode for static type generation (no composition keywords)`,
 }
 
 var lintCmd = &cobra.Command{
 	Use:   "lint <schema.json>",
-	Short: "Lint JSON Schema for Go compatibility issues",
-	Long: `Lint a JSON Schema file and report any patterns that would cause
-problems when generating Go code.
+	Short: "Lint JSON Schema for static type compatibility",
+	Long: `Lint a JSON Schema file and report patterns that cause problems
+when generating code for statically-typed languages.
 
-Issues checked include:
+Default profile checks:
   - Unions without discriminator fields (error)
   - Inconsistent discriminator field names (error)
   - Missing const values in union variants (error)
   - Large unions with many variants (warning)
   - Deeply nested unions (warning)
   - additionalProperties on union variants (warning)
+
+Scale profile additionally checks:
+  - Composition keywords anyOf/oneOf/allOf (error)
+  - additionalProperties: true (error)
+  - Missing explicit type field (error)
+  - Mixed type arrays like ["string", "number"] (error)
 
 Exit codes:
   0 - No issues found
@@ -53,7 +61,8 @@ Exit codes:
 }
 
 var (
-	lintOutput string
+	lintOutput  string
+	lintProfile string
 )
 
 func init() {
@@ -61,12 +70,23 @@ func init() {
 	rootCmd.AddCommand(versionCmd)
 
 	lintCmd.Flags().StringVarP(&lintOutput, "output", "o", "text", "Output format: text, json, github")
+	lintCmd.Flags().StringVarP(&lintProfile, "profile", "p", "default", "Linting profile: default, scale")
 }
 
 func runLint(cmd *cobra.Command, args []string) error {
 	schemaPath := args[0]
 
-	l := linter.NewWithDefaults()
+	config := linter.DefaultConfig()
+	switch lintProfile {
+	case "scale":
+		config.Profile = linter.ProfileScale
+	case "default":
+		config.Profile = linter.ProfileDefault
+	default:
+		return fmt.Errorf("unknown profile: %s (use 'default' or 'scale')", lintProfile)
+	}
+
+	l := linter.New(config)
 	result, err := l.LintFile(schemaPath)
 	if err != nil {
 		return fmt.Errorf("failed to lint schema: %w", err)
@@ -99,6 +119,6 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print version information",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("schemago version %s\n", version)
+		fmt.Printf("schemalint version %s\n", version)
 	},
 }
