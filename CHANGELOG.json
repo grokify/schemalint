@@ -1,8 +1,26 @@
 {
   "ir_version": "1.0",
-  "project": "schemago",
-  "repository": "https://github.com/grokify/schemago",
+  "project": "schemalint",
+  "repository": "https://github.com/grokify/schemalint",
   "releases": [
+    {
+      "version": "v0.2.0",
+      "date": "2026-02-08",
+      "description": "Rename to schemalint and add scale profile for strict static type compatibility",
+      "changed": [
+        {"description": "**BREAKING**: Rename binary from `schemago` to `schemalint`", "commit": "a96efd5"},
+        {"description": "**BREAKING**: Rename module from `github.com/grokify/schemago` to `github.com/grokify/schemalint`", "commit": "a96efd5"},
+        {"description": "Update CLI description to emphasize static type compatibility for all languages (Go, Rust, TypeScript, etc.)", "commit": "a96efd5"}
+      ],
+      "added": [
+        {"description": "`--profile` / `-p` flag to select linting profile (`default`, `scale`)", "commit": "c0fed40"},
+        {"description": "Scale profile with `composition-disallowed` rule: disallow `anyOf`, `oneOf`, `allOf`", "commit": "c0fed40"},
+        {"description": "Scale profile with `additional-properties-disallowed` rule: disallow `additionalProperties: true`", "commit": "c0fed40"},
+        {"description": "Scale profile with `missing-type` rule: require explicit `type` field", "commit": "c0fed40"},
+        {"description": "Scale profile with `mixed-type-disallowed` rule: disallow type arrays like `[\"string\", \"number\"]`", "commit": "c0fed40"},
+        {"description": "Goreleaser configuration for cross-platform builds and Homebrew tap", "commit": "b5d1fab"}
+      ]
+    },
     {
       "version": "v0.1.0",
       "date": "2026-01-17",
