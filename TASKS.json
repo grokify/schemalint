@@ -1,5 +1,5 @@
 {
-  "ir_version": "1.0",
+  "irVersion": "1.0",
   "project": "schemalint",
   "repository": "https://github.com/grokify/schemalint",
 
@@ -34,16 +34,23 @@
     },
     {
       "id": "v0.3",
-      "name": "v0.3.0 - Configuration",
-      "status": "planned",
+      "name": "v0.3.0 - Schema Generation",
+      "status": "completed",
       "order": 3,
+      "description": "Generate JSON Schema from Go struct types"
+    },
+    {
+      "id": "v0.4",
+      "name": "v0.4.0 - Configuration",
+      "status": "planned",
+      "order": 4,
       "description": "Configuration file support, additional lint checks"
     },
     {
       "id": "v1.0",
       "name": "v1.0.0 - Production Ready",
       "status": "planned",
-      "order": 4,
+      "order": 5,
       "description": "Stable API, comprehensive documentation"
     },
     {
@@ -233,12 +240,23 @@
       "priority": "medium"
     },
     {
+      "id": "cli-generate",
+      "title": "`schemalint generate` command",
+      "description": "Generate JSON Schema from Go struct types using invopop/jsonschema",
+      "status": "completed",
+      "target_version": "0.3.0",
+      "phase": "v0.3",
+      "area": "cli",
+      "type": "Added",
+      "priority": "high"
+    },
+    {
       "id": "config-file",
       "title": "Configuration file support",
       "description": "YAML config file for linting options",
       "status": "planned",
-      "target_version": "0.3.0",
-      "phase": "v0.3",
+      "target_version": "0.4.0",
+      "phase": "v0.4",
       "area": "cli",
       "type": "Added",
       "priority": "medium"
@@ -248,8 +266,8 @@
       "title": "$ref resolution",
       "description": "Resolve local $ref references for more accurate linting",
       "status": "planned",
-      "target_version": "0.3.0",
-      "phase": "v0.3",
+      "target_version": "0.4.0",
+      "phase": "v0.4",
       "area": "linter",
       "type": "Added",
       "priority": "high"
@@ -259,8 +277,8 @@
       "title": "Additional lint checks",
       "description": "More checks for common schema issues",
       "status": "planned",
-      "target_version": "0.3.0",
-      "phase": "v0.3",
+      "target_version": "0.4.0",
+      "phase": "v0.4",
       "area": "linter",
       "type": "Added",
       "priority": "medium"
@@ -355,7 +373,8 @@
   "version_history": [
     {"version": "0.1.0", "date": "2026-01-17", "status": "completed", "summary": "Foundation - linter with union detection"},
     {"version": "0.2.0", "date": "2026-02-08", "status": "completed", "summary": "Scale profile, Homebrew support, rename to schemalint"},
-    {"version": "0.3.0", "date": null, "status": "planned", "summary": "Configuration file, $ref resolution"},
+    {"version": "0.3.0", "date": "2026-02-08", "status": "completed", "summary": "Generate JSON Schema from Go struct types"},
+    {"version": "0.4.0", "date": null, "status": "planned", "summary": "Configuration file, $ref resolution"},
     {"version": "1.0.0", "date": null, "status": "planned", "summary": "Production ready release"}
   ]
 }
