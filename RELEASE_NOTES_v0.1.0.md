@@ -68,7 +68,7 @@ Future releases will add:
 - Configuration file support (`schemago.yaml`)
 - Oracle Agent Spec compatibility
 
-See [ROADMAP.md](ROADMAP.md) for the complete roadmap.
+See [TASKS.md](TASKS.md) for planned features.
 
 ## Documentation
 

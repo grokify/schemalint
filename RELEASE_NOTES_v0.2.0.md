@@ -96,7 +96,7 @@ Future releases will add:
 - Configuration file support
 - OpenAPI 3.1 support
 
-See [ROADMAP.md](ROADMAP.md) for the complete roadmap.
+See [TASKS.md](TASKS.md) for planned features.
 
 ## Documentation
 

@@ -28,6 +28,17 @@ go install github.com/grokify/schemalint/cmd/schemalint@latest
 
 ## Usage
 
+### Generate Schema from Go Types
+
+Generate a JSON Schema from Go struct types:
+
+```bash
+schemalint generate github.com/myorg/myproject/types Config
+schemalint generate -o schema.json github.com/myorg/myproject/types Config
+```
+
+This creates a temporary Go program that uses [invopop/jsonschema](https://github.com/invopop/jsonschema) to reflect on your type and generate the schema. The target package can be local (in GOPATH/src) or remote.
+
 ### Lint Schema
 
 Check a JSON Schema for patterns that cause problems in code generation:
@@ -154,7 +165,7 @@ Fix by adding a discriminator:
 
 ## Roadmap
 
-See [ROADMAP.md](ROADMAP.md) for planned features including:
+See [TASKS.md](TASKS.md) for planned features including:
 
 - Code generation for Go, Rust, TypeScript
 - Full `$ref` resolution
