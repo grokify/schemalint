@@ -1,0 +1,71 @@
+# Release Notes: schemalint v0.3.0
+
+**Release Date:** 2026-02-09
+
+## Overview
+
+This release adds the `schemalint generate` command to generate JSON Schema from Go struct types using reflection. This enables a Go-first workflow where Go structs are the source of truth for your schemas.
+
+## Highlights
+
+- **Schema Generation**: New `schemalint generate` command using [invopop/jsonschema](https://github.com/invopop/jsonschema)
+- **Local & Remote Modules**: Support for both GOPATH/src packages and remote Go modules
+- **GoReleaser**: GitHub Actions release workflow for automated builds
+
+## Installation
+
+### Homebrew
+
+```bash
+brew install grokify/tap/schemalint
+```
+
+### Go Install
+
+```bash
+go install github.com/grokify/schemalint/cmd/schemalint@latest
+```
+
+## New Features
+
+### Generate Command
+
+Generate JSON Schema from Go struct types:
+
+```bash
+# Generate schema for a type
+schemalint generate github.com/myorg/myproject/types Config
+
+# Save to file
+schemalint generate -o schema.json github.com/myorg/myproject/types Config
+
+# Generate without indentation
+schemalint generate --indent=false github.com/myorg/myproject/types Config
+```
+
+The command creates a temporary Go program that imports your type and uses `github.com/invopop/jsonschema` to generate the schema via reflection.
+
+### Module Support
+
+- **Local modules**: Packages in `$GOPATH/src` are resolved via replace directives
+- **Remote modules**: Packages are fetched via `go get`
+
+## Other Changes
+
+- Rename ROADMAP.json/md to TASKS.json/md for clarity
+- Fix .gitignore pattern to not exclude cmd/schemalint/ files
+- Add GitHub Actions release workflow for GoReleaser
+
+## What's Next
+
+v0.4.0 will rename the project to **schemakit** and add the `doc` command for generating Markdown documentation from Go types.
+
+## Documentation
+
+- [README.md](README.md) - Quick start guide
+- [CHANGELOG.md](CHANGELOG.md) - Full changelog
+- [TASKS.md](TASKS.md) - Roadmap
+
+## License
+
+MIT License
