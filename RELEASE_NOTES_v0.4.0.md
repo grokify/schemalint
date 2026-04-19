@@ -1,0 +1,108 @@
+# Release Notes: schemakit v0.4.0
+
+**Release Date:** 2026-04-18
+
+## Overview
+
+This release renames the project from **schemalint** to **schemakit** and adds the `doc` command for generating Markdown documentation from Go struct types. The new name reflects the expanded toolkit capabilities beyond just linting.
+
+## Breaking Changes
+
+- **Binary renamed**: `schemalint` is now `schemakit`
+- **Module path changed**: `github.com/grokify/schemalint` is now `github.com/grokify/schemakit`
+
+Update your installation:
+
+```bash
+# Old
+go install github.com/grokify/schemalint/cmd/schemalint@latest
+
+# New
+go install github.com/grokify/schemakit/cmd/schemakit@latest
+```
+
+## Highlights
+
+- **Project Rename**: schemalint is now schemakit - a JSON Schema toolkit
+- **Doc Command**: Generate Markdown specification docs from Go struct types
+- **Go-First Workflow**: Go structs → JSON Schema + Markdown documentation
+
+## Installation
+
+### Homebrew
+
+```bash
+brew install grokify/tap/schemakit
+```
+
+### Go Install
+
+```bash
+go install github.com/grokify/schemakit/cmd/schemakit@latest
+```
+
+## New Features
+
+### Doc Command
+
+Generate Markdown documentation from Go struct types:
+
+```bash
+# Generate to stdout
+schemakit doc github.com/grokify/threat-model-spec/ir ThreatModel
+
+# Generate with title and version, save to file
+schemakit doc -t "Threat Model Specification" -v v0.4.0 \
+  github.com/grokify/threat-model-spec/ir ThreatModel -o spec.md
+```
+
+Output includes:
+
+- Package doc comment as overview
+- Table of contents with all types
+- Required and optional field tables
+- Type descriptions from doc comments
+- JSON field names from struct tags
+
+### Go-First Workflow
+
+schemakit now supports a complete Go-first workflow:
+
+```
+Go Structs (with doc comments)
+         │
+         ├──► schemakit generate ──► JSON Schema
+         │
+         └──► schemakit doc ──► Markdown Specification
+```
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `schemakit lint` | Check schemas for static type compatibility |
+| `schemakit generate` | Generate JSON Schema from Go struct types |
+| `schemakit doc` | Generate Markdown documentation from Go types |
+| `schemakit version` | Print version information |
+
+## What's Next
+
+Future releases will add:
+
+- Code generation for Go, Rust, TypeScript
+- Enum value extraction in doc command
+- Full `$ref` resolution
+- OpenAPI 3.1 support
+
+See [TASKS.md](TASKS.md) for planned features.
+
+## Documentation
+
+- [README.md](README.md) - Quick start guide
+- [CHANGELOG.md](CHANGELOG.md) - Full changelog
+- [PRD.md](PRD.md) - Product requirements
+- [TRD.md](TRD.md) - Technical requirements
+
+## License
+
+MIT License

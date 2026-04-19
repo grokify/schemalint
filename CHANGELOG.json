@@ -1,11 +1,33 @@
 {
   "irVersion": "1.0",
-  "project": "schemalint",
-  "repository": "https://github.com/grokify/schemalint",
+  "project": "schemakit",
+  "repository": "https://github.com/grokify/schemakit",
   "versioning": "semver",
   "commitConvention": "conventional",
   "maintainers": ["grokify"],
   "releases": [
+    {
+      "version": "v0.4.0",
+      "date": "2026-04-18",
+      "highlights": [
+        {"description": "Rename to schemakit and add doc command for Markdown documentation generation"}
+      ],
+      "breaking": [
+        {"description": "Rename binary from `schemalint` to `schemakit`", "commit": "299d3d9"},
+        {"description": "Rename module from `github.com/grokify/schemalint` to `github.com/grokify/schemakit`", "commit": "299d3d9"}
+      ],
+      "added": [
+        {"description": "`schemakit doc` command to generate Markdown documentation from Go struct types", "commit": "2803436"},
+        {"description": "Extract package doc comments, type descriptions, and field comments via reflection", "commit": "2803436"},
+        {"description": "Generate required/optional field tables with JSON names and types", "commit": "2803436"},
+        {"description": "Support `--title` and `--version` flags for documentation headers", "commit": "2803436"}
+      ],
+      "documentation": [
+        {"description": "Update README with schemakit branding and doc command usage", "commit": "c38b257"},
+        {"description": "Add Go-first workflow diagram showing generate and doc commands", "commit": "c38b257"},
+        {"description": "Release notes for v0.4.0", "commit": ""}
+      ]
+    },
     {
       "version": "v0.3.0",
       "date": "2026-02-09",
