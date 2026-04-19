@@ -1,4 +1,4 @@
-# SchemaLint
+# SchemaKit
 
 [![Build Status][build-status-svg]][build-status-url]
 [![Lint Status][lint-status-svg]][lint-status-url]
@@ -6,25 +6,38 @@
 [![Docs][docs-godoc-svg]][docs-godoc-url]
 [![License][license-svg]][license-url]
 
-JSON Schema linter for static type compatibility.
+JSON Schema toolkit for Go developers.
 
 ## Overview
 
-**schemalint** validates JSON Schema files for compatibility with statically-typed languages like Go, Rust, TypeScript, and others. It catches patterns that cause problems in code generation before they become runtime issues.
+**schemakit** is a toolkit for working with JSON Schema in Go projects. It provides:
+
+- **Linting** - Validate schemas for compatibility with statically-typed languages
+- **Generation** - Generate JSON Schema from Go struct types
+- **Documentation** - Generate Markdown specification docs from Go types
 
 ## Installation
 
 ### Homebrew
 
 ```bash
-brew install grokify/tap/schemalint
+brew install grokify/tap/schemakit
 ```
 
 ### Go Install
 
 ```bash
-go install github.com/grokify/schemalint/cmd/schemalint@latest
+go install github.com/grokify/schemakit/cmd/schemakit@latest
 ```
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `schemakit lint` | Check schemas for static type compatibility |
+| `schemakit generate` | Generate JSON Schema from Go struct types |
+| `schemakit doc` | Generate Markdown documentation from Go types |
+| `schemakit version` | Print version information |
 
 ## Usage
 
@@ -33,18 +46,39 @@ go install github.com/grokify/schemalint/cmd/schemalint@latest
 Generate a JSON Schema from Go struct types:
 
 ```bash
-schemalint generate github.com/myorg/myproject/types Config
-schemalint generate -o schema.json github.com/myorg/myproject/types Config
+schemakit generate github.com/myorg/myproject/types Config
+schemakit generate -o schema.json github.com/myorg/myproject/types Config
 ```
 
 This creates a temporary Go program that uses [invopop/jsonschema](https://github.com/invopop/jsonschema) to reflect on your type and generate the schema. The target package can be local (in GOPATH/src) or remote.
+
+### Generate Documentation from Go Types
+
+Generate Markdown specification documentation from Go struct types:
+
+```bash
+# Generate to stdout
+schemakit doc github.com/grokify/threat-model-spec/ir ThreatModel
+
+# Generate with title and version, save to file
+schemakit doc -t "Threat Model Specification" -v v0.4.0 \
+  github.com/grokify/threat-model-spec/ir ThreatModel -o spec.md
+```
+
+The `doc` command extracts:
+
+- Package doc comments as overview
+- Type descriptions from doc comments
+- Field names and JSON tags
+- Required vs optional fields (based on `omitempty`)
+- Generates tables for required and optional fields
 
 ### Lint Schema
 
 Check a JSON Schema for patterns that cause problems in code generation:
 
 ```bash
-schemalint lint schema.json
+schemakit lint schema.json
 ```
 
 ### Profiles
@@ -52,8 +86,8 @@ schemalint lint schema.json
 Use `--profile` to select a linting profile:
 
 ```bash
-schemalint lint schema.json                  # default profile
-schemalint lint schema.json --profile scale  # strict scale profile
+schemakit lint schema.json                  # default profile
+schemakit lint schema.json --profile scale  # strict scale profile
 ```
 
 | Profile | Description |
@@ -64,9 +98,9 @@ schemalint lint schema.json --profile scale  # strict scale profile
 ### Output Formats
 
 ```bash
-schemalint lint --output text schema.json   # Human-readable (default)
-schemalint lint --output json schema.json   # Machine-readable JSON
-schemalint lint --output github schema.json # GitHub Actions annotations
+schemakit lint --output text schema.json   # Human-readable (default)
+schemakit lint --output json schema.json   # Machine-readable JSON
+schemakit lint --output github schema.json # GitHub Actions annotations
 ```
 
 ### Exit Codes
@@ -127,7 +161,7 @@ Given this schema with a union that lacks a discriminator:
 }
 ```
 
-Running `schemalint lint` will report:
+Running `schemakit lint` will report:
 
 ```
 [error] $/$defs/Response/anyOf: anyOf union has no discriminator field
@@ -163,6 +197,20 @@ Fix by adding a discriminator:
 }
 ```
 
+## Go-First Workflow
+
+schemakit supports a Go-first approach where Go structs are the source of truth:
+
+```
+Go Structs (with doc comments)
+         │
+         ├──► schemakit generate ──► JSON Schema
+         │
+         └──► schemakit doc ──► Markdown Specification
+```
+
+This ensures your JSON Schema and documentation are always in sync with your Go types.
+
 ## Roadmap
 
 See [TASKS.md](TASKS.md) for planned features including:
@@ -181,13 +229,13 @@ See [TASKS.md](TASKS.md) for planned features including:
 
 MIT License - see [LICENSE](LICENSE) for details.
 
- [build-status-svg]: https://github.com/grokify/schemalint/actions/workflows/ci.yaml/badge.svg?branch=main
- [build-status-url]: https://github.com/grokify/schemalint/actions/workflows/ci.yaml
- [lint-status-svg]: https://github.com/grokify/schemalint/actions/workflows/lint.yaml/badge.svg?branch=main
- [lint-status-url]: https://github.com/grokify/schemalint/actions/workflows/lint.yaml
- [goreport-svg]: https://goreportcard.com/badge/github.com/grokify/schemalint
- [goreport-url]: https://goreportcard.com/report/github.com/grokify/schemalint
- [docs-godoc-svg]: https://pkg.go.dev/badge/github.com/grokify/schemalint
- [docs-godoc-url]: https://pkg.go.dev/github.com/grokify/schemalint
+ [build-status-svg]: https://github.com/grokify/schemakit/actions/workflows/ci.yaml/badge.svg?branch=main
+ [build-status-url]: https://github.com/grokify/schemakit/actions/workflows/ci.yaml
+ [lint-status-svg]: https://github.com/grokify/schemakit/actions/workflows/lint.yaml/badge.svg?branch=main
+ [lint-status-url]: https://github.com/grokify/schemakit/actions/workflows/lint.yaml
+ [goreport-svg]: https://goreportcard.com/badge/github.com/grokify/schemakit
+ [goreport-url]: https://goreportcard.com/report/github.com/grokify/schemakit
+ [docs-godoc-svg]: https://pkg.go.dev/badge/github.com/grokify/schemakit
+ [docs-godoc-url]: https://pkg.go.dev/github.com/grokify/schemakit
  [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
- [license-url]: https://github.com/grokify/schemalint/blob/main/LICENSE
+ [license-url]: https://github.com/grokify/schemakit/blob/main/LICENSE
