@@ -1,4 +1,4 @@
-// Package main provides the schemalint CLI.
+// Package main provides the schemakit CLI.
 package main
 
 import (
@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/grokify/schemalint/linter"
+	"github.com/grokify/schemakit/linter"
 )
 
 var version = "dev"
@@ -20,16 +20,16 @@ func main() {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "schemalint",
-	Short: "JSON Schema linter and generator for static type compatibility",
-	Long: `schemalint validates and generates JSON Schema files for compatibility
-with statically-typed languages like Go, Rust, TypeScript, and others.
+	Use:   "schemakit",
+	Short: "JSON Schema toolkit for Go developers",
+	Long: `schemakit is a toolkit for working with JSON Schema in Go projects.
 
 Commands:
-  lint      - Check schemas for type compatibility issues
+  lint      - Check schemas for static type compatibility
   generate  - Generate JSON Schema from Go struct types
+  doc       - Generate Markdown documentation from Go types
 
-Profiles:
+Profiles (for lint):
   default  - Check for common issues (discriminators, large unions)
   scale    - Strict mode for static type generation (no composition keywords)`,
 }
@@ -138,6 +138,6 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print version information",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("schemalint version %s\n", version)
+		fmt.Printf("schemakit version %s\n", version)
 	},
 }

@@ -34,13 +34,13 @@ uses github.com/invopop/jsonschema to generate the schema.
 
 Examples:
   # Generate schema for TaskList type from structured-tasks
-  schemalint generate github.com/grokify/structured-tasks/tasks TaskList
+  schemakit generate github.com/grokify/structured-tasks/tasks TaskList
 
   # Generate and save to file
-  schemalint generate -o schema.json github.com/myorg/myproject/types Config
+  schemakit generate -o schema.json github.com/myorg/myproject/types Config
 
   # Generate without indentation
-  schemalint generate --indent=false github.com/myorg/myproject/types Config
+  schemakit generate --indent=false github.com/myorg/myproject/types Config
 
 Notes:
   - The package must be importable (available locally or via go get)
@@ -95,7 +95,7 @@ func runGenerate(cmd *cobra.Command, args []string) error {
 	modRoot, modName := findModule(pkgPath)
 
 	// Create temp directory
-	tmpDir, err := os.MkdirTemp("", "schemalint-gen-*")
+	tmpDir, err := os.MkdirTemp("", "schemakit-gen-*")
 	if err != nil {
 		return fmt.Errorf("failed to create temp directory: %w", err)
 	}
@@ -137,7 +137,7 @@ func runGenerate(cmd *cobra.Command, args []string) error {
 	}
 
 	// Initialize the go module
-	if err := goCmd("mod", "init", "schemalint-gen"); err != nil {
+	if err := goCmd("mod", "init", "schemakit-gen"); err != nil {
 		return err
 	}
 
