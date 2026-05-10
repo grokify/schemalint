@@ -492,3 +492,160 @@ func TestScaleProfileValidSchema(t *testing.T) {
 		t.Errorf("Expected no errors for valid scale profile schema, got: %v", result.Issues)
 	}
 }
+
+// Navigable profile tests
+
+func TestNavigableProfileDeepNesting(t *testing.T) {
+	// Schema with 3 levels of object nesting (exceeds default max of 2)
+	schema := `{
+		"type": "object",
+		"properties": {
+			"level1": {
+				"type": "object",
+				"properties": {
+					"level2": {
+						"type": "object",
+						"properties": {
+							"level3": {
+								"type": "object",
+								"properties": {
+									"value": { "type": "string" }
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}`
+
+	config := DefaultConfig()
+	config.Profile = ProfileNavigable
+	l := New(config)
+
+	result, err := l.Lint([]byte(schema))
+	if err != nil {
+		t.Fatalf("Failed to lint: %v", err)
+	}
+
+	// Should have deep nesting error
+	found := false
+	for _, issue := range result.Issues {
+		if issue.Code == CodeDeepNesting {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("Expected deep-nesting error for schema with 3 levels of nesting")
+	}
+}
+
+func TestNavigableProfileValidSchema(t *testing.T) {
+	// Schema with 2 levels of nesting (should pass)
+	schema := `{
+		"type": "object",
+		"properties": {
+			"timeline": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"event_id": { "type": "string" },
+						"description": { "type": "string" }
+					}
+				}
+			}
+		}
+	}`
+
+	config := DefaultConfig()
+	config.Profile = ProfileNavigable
+	config.PropertyCase = CaseSnake
+	l := New(config)
+
+	result, err := l.Lint([]byte(schema))
+	if err != nil {
+		t.Fatalf("Failed to lint: %v", err)
+	}
+
+	if result.HasErrors() {
+		t.Errorf("Expected no errors for valid navigable schema, got: %v", result.Issues)
+	}
+}
+
+func TestNavigableProfileMissingID(t *testing.T) {
+	// Array of objects without ID field
+	schema := `{
+		"type": "object",
+		"properties": {
+			"items": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"name": { "type": "string" },
+						"value": { "type": "number" }
+					}
+				}
+			}
+		}
+	}`
+
+	config := DefaultConfig()
+	config.Profile = ProfileNavigable
+	l := New(config)
+
+	result, err := l.Lint([]byte(schema))
+	if err != nil {
+		t.Fatalf("Failed to lint: %v", err)
+	}
+
+	// Should have missing ID warning
+	found := false
+	for _, issue := range result.Issues {
+		if issue.Code == CodeMissingID {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("Expected missing-id-field warning for array items without ID")
+	}
+}
+
+func TestNavigableProfileWithIDField(t *testing.T) {
+	// Array of objects with ID field (should not warn)
+	schema := `{
+		"type": "object",
+		"properties": {
+			"events": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"event_id": { "type": "string" },
+						"description": { "type": "string" }
+					}
+				}
+			}
+		}
+	}`
+
+	config := DefaultConfig()
+	config.Profile = ProfileNavigable
+	config.PropertyCase = CaseSnake
+	l := New(config)
+
+	result, err := l.Lint([]byte(schema))
+	if err != nil {
+		t.Fatalf("Failed to lint: %v", err)
+	}
+
+	// Should not have missing ID warning
+	for _, issue := range result.Issues {
+		if issue.Code == CodeMissingID {
+			t.Errorf("Did not expect missing-id-field warning when event_id is present")
+		}
+	}
+}
