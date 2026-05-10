@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 )
 
 // Profile represents a linting profile with predefined rules.
@@ -14,6 +15,9 @@ const (
 	ProfileDefault Profile = "default"
 	// ProfileScale is a strict profile for static type compatibility (jsonschema4scale).
 	ProfileScale Profile = "scale"
+	// ProfileNavigable is for schemas optimized for human review and AI agent authoring.
+	// Enforces flat structure, shallow nesting, and predictable cross-references.
+	ProfileNavigable Profile = "navigable"
 )
 
 // PropertyCase defines the casing convention for object properties.
@@ -44,22 +48,33 @@ type Config struct {
 	MaxUnionNestingDepth int
 	// DiscriminatorFields are the field names to look for as discriminators
 	DiscriminatorFields []string
+	// MaxObjectNestingDepth is the threshold for object nesting (navigable profile, default: 2)
+	MaxObjectNestingDepth int
+	// MaxArrayNestingDepth is the threshold for array nesting (navigable profile, default: 1)
+	MaxArrayNestingDepth int
 }
 
 // DefaultConfig returns the default linter configuration.
 func DefaultConfig() Config {
 	return Config{
-		Profile:              ProfileDefault,
-		PropertyCase:         CaseCamel,
-		MaxUnionVariants:     10,
-		MaxUnionNestingDepth: 2,
-		DiscriminatorFields:  []string{"component_type", "type", "kind"},
+		Profile:               ProfileDefault,
+		PropertyCase:          CaseCamel,
+		MaxUnionVariants:      10,
+		MaxUnionNestingDepth:  2,
+		DiscriminatorFields:   []string{"component_type", "type", "kind"},
+		MaxObjectNestingDepth: 2,
+		MaxArrayNestingDepth:  1,
 	}
 }
 
 // IsScaleProfile returns true if the scale profile is active.
 func (c Config) IsScaleProfile() bool {
 	return c.Profile == ProfileScale
+}
+
+// IsNavigableProfile returns true if the navigable profile is active.
+func (c Config) IsNavigableProfile() bool {
+	return c.Profile == ProfileNavigable
 }
 
 // Linter checks JSON Schemas for Go compatibility issues.
@@ -129,6 +144,11 @@ func (l *Linter) lintSchema(schema *Schema, path string, result *Result, unionDe
 	// Scale profile: strict checks for static type compatibility
 	if l.config.IsScaleProfile() {
 		l.lintScaleProfile(schema, path, result)
+	}
+
+	// Navigable profile: checks for human-reviewable, AI-friendly schemas
+	if l.config.IsNavigableProfile() {
+		l.lintNavigableProfile(schema, path, result)
 	}
 
 	// Check for union types
@@ -306,6 +326,111 @@ func (l *Linter) lintScaleProfile(schema *Schema, path string, result *Result) {
 			Suggestion: "Use a single type; for nullable types, use a separate null check",
 		})
 	}
+}
+
+// lintNavigableProfile applies checks for human-reviewable, AI-friendly schemas.
+// Based on design principles from incident-lifecycle-spec:
+// - Maximum 2 levels of object nesting
+// - Arrays of objects should not nest arrays of objects
+// - Cross-references should be shallow (single-hop)
+// - Each object should be locally comprehensible
+func (l *Linter) lintNavigableProfile(schema *Schema, path string, result *Result) {
+	// Check object nesting depth
+	depth := l.countNestingDepth(path, "properties")
+	maxDepth := l.config.MaxObjectNestingDepth
+	if maxDepth == 0 {
+		maxDepth = 2
+	}
+	if depth > maxDepth {
+		result.Issues = append(result.Issues, Issue{
+			Code:       CodeDeepNesting,
+			Severity:   SeverityError,
+			Path:       path,
+			Message:    fmt.Sprintf("object nesting depth %d exceeds maximum %d in navigable profile", depth, maxDepth),
+			Suggestion: "Flatten the schema by moving nested objects to top-level definitions with $ref",
+		})
+	}
+
+	// Check array nesting (arrays containing arrays of objects)
+	if l.isArrayOfArraysOfObjects(schema, path) {
+		result.Issues = append(result.Issues, Issue{
+			Code:       CodeDeepArrayNesting,
+			Severity:   SeverityWarning,
+			Path:       path,
+			Message:    "arrays of arrays of objects reduce navigability",
+			Suggestion: "Use flat arrays with cross-references instead of nested arrays",
+		})
+	}
+
+	// Check for ID fields in object arrays (for cross-referencing)
+	if schema.Type == "array" && schema.Items != nil && schema.Items.Type == "object" {
+		if !l.hasIDField(schema.Items) {
+			result.Issues = append(result.Issues, Issue{
+				Code:       CodeMissingID,
+				Severity:   SeverityWarning,
+				Path:       path,
+				Message:    "array items lack an ID field for cross-referencing",
+				Suggestion: "Add an ID field (e.g., 'id', 'event_id', 'item_id') to enable cross-references",
+			})
+		}
+	}
+}
+
+// countNestingDepth counts how many times a path segment appears in the path.
+func (l *Linter) countNestingDepth(path, segment string) int {
+	count := 0
+	parts := splitPath(path)
+	for _, part := range parts {
+		if part == segment {
+			count++
+		}
+	}
+	return count
+}
+
+// splitPath splits a JSON pointer path into segments.
+func splitPath(path string) []string {
+	if path == "" || path == "/" {
+		return nil
+	}
+	// Remove leading slash
+	if len(path) > 0 && path[0] == '/' {
+		path = path[1:]
+	}
+	result := []string{}
+	for _, part := range strings.Split(path, "/") {
+		if part != "" {
+			result = append(result, part)
+		}
+	}
+	return result
+}
+
+// isArrayOfArraysOfObjects checks if a schema is an array containing arrays of objects.
+func (l *Linter) isArrayOfArraysOfObjects(schema *Schema, path string) bool {
+	if schema.Type != "array" || schema.Items == nil {
+		return false
+	}
+	if schema.Items.Type == "array" && schema.Items.Items != nil {
+		return schema.Items.Items.Type == "object"
+	}
+	return false
+}
+
+// hasIDField checks if an object schema has an ID-like field.
+func (l *Linter) hasIDField(schema *Schema) bool {
+	if schema == nil || len(schema.Properties) == 0 {
+		return false
+	}
+	idFields := []string{"id", "ID", "_id", "event_id", "item_id", "action_id", "hypothesis_id", "evidence_id"}
+	for propName := range schema.Properties {
+		for _, idField := range idFields {
+			if propName == idField || strings.HasSuffix(propName, "_id") || strings.HasSuffix(propName, "Id") {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func (l *Linter) lintUnion(variants []*Schema, path string, result *Result, unionDepth int, unionType string) {

@@ -39,6 +39,13 @@ const (
 	CodeAdditionalPropsDisallowed IssueCode = "additional-properties-disallowed"
 	CodeMissingType               IssueCode = "missing-type"
 	CodeMixedTypeDisallowed       IssueCode = "mixed-type-disallowed"
+
+	// Navigable profile errors - rules for human review and AI agent authoring
+	CodeDeepNesting       IssueCode = "deep-nesting"
+	CodeDeepArrayNesting  IssueCode = "deep-array-nesting"
+	CodeMissingID         IssueCode = "missing-id-field"
+	CodeComplexRef        IssueCode = "complex-ref"
+	CodeImplicitDependency IssueCode = "implicit-dependency"
 )
 
 // Issue represents a single lint issue found in a schema.

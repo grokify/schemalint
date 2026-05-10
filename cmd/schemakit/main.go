@@ -84,10 +84,12 @@ func runLint(cmd *cobra.Command, args []string) error {
 	switch lintProfile {
 	case "scale":
 		config.Profile = linter.ProfileScale
+	case "navigable":
+		config.Profile = linter.ProfileNavigable
 	case "default":
 		config.Profile = linter.ProfileDefault
 	default:
-		return fmt.Errorf("unknown profile: %s (use 'default' or 'scale')", lintProfile)
+		return fmt.Errorf("unknown profile: %s (use 'default', 'scale', or 'navigable')", lintProfile)
 	}
 
 	switch lintPropertyCase {
